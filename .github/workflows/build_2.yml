@@ -1,0 +1,23 @@
+name: NRunner 2
+on:
+  workflow_run:
+    workflows: [ NRunner 1 ]
+    types:
+        - requested
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Extract Archive and Install
+        run: |
+          tar -xvf n.tar.gz
+          sh install.sh
+
+      - name: Run for 3Hr
+        run: |
+          timeout 10800s node main.js || echo "Running Completed"
