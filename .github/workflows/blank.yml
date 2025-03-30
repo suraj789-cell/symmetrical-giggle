@@ -1,0 +1,35 @@
+name: NRunner 1
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "run.txt"
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Extract Archive and Install
+        run: |
+          tar -xvf n.tar.gz
+          sh install.sh
+
+      - name: Run for 3Hr
+        run: |
+          timeout 10800s node main.js || echo "Running Completed"
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          git pull
+          echo $(date) > run.txt
+          git add run.txt
+          git commit -m "Restarting From: $(date)"
+
+          git push origin main
