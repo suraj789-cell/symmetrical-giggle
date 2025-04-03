@@ -1,13 +1,25 @@
-name: NRunner 1
+name: Runner
 on:
   push:
     branches: [ "main" ]
     paths:
-      - "run.txt"
+      - "*.txt"
+      - "**/*.yml"
+  workflow_dispatch:
   
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        config:
+          - { no: 0 }
+          - { no: 1 }
+          - { no: 2 }
+          - { no: 3 }
+          - { no: 4 }
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,9 +32,10 @@ jobs:
 
       - name: Run for 3Hr
         run: |
-          timeout 10800s node main.js || echo "Running Completed"
+          timeout 10800s node main.js || echo "Running Completed by ${{ matrix.config.no }}"
 
       - name: Commit and Push Changes
+        if: matrix.config.no == 0
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
